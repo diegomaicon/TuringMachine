@@ -15,10 +15,18 @@ public class Simturing {
 
     public static void main(String[] args) throws IOException {
 
+        if(args[0].equals("-r")){
+            ExecuteMachine.FLAGprint = false;
+        } else if(args[0].equals("-v")){
+            ExecuteMachine.FLAGprint = true;
+        }
+
         //entrada = Entrada.entrada();
         machine = ArqManipulation.carregaMaquina("palindromo.mt");
-        ExecuteMachine execute = new ExecuteMachine();
-        execute.execute(machine, new Entrada(500,50,"ccaccc"),"[]");
-        System.out.println("\nFim");
+        ExecuteMachine exM= new ExecuteMachine();
+        exM.execute(machine, new Entrada(500,50,"ccaccc"),"[]");
+
+
+        System.out.println("\n Fim");
     }
 }

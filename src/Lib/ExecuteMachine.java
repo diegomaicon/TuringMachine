@@ -3,7 +3,6 @@ package Lib;
 import Modelo.Entrada;
 import Modelo.State;
 
-import java.security.PublicKey;
 import java.util.ArrayList;
 
 /**
@@ -13,12 +12,15 @@ public class ExecuteMachine {
     private Character[] fita;
     private int fEsqueda = 20;
     private int fDireita = 20;
-    int Cab ;
-    boolean FLAG = true;
+    private int cabecote;
+    private boolean FLAG = true;
+    private String printFim ="";
+
+    public static boolean FLAGprint;
 
     private Character[] iniciaFita(Entrada entrada, String head,int id){
 
-        Cab = fEsqueda;
+        cabecote = fEsqueda;
         fita = new Character[fEsqueda+entrada.getWord().length()+fDireita];
 
 
@@ -36,8 +38,8 @@ public class ExecuteMachine {
                 fita[i] = '_';
             }
         }
-        Cab++;
-        if(FLAG)imprimeFita(fita,id);
+        cabecote++;
+        if(FLAG)imprimeFita(fita,id,"........");
 
         return fita;
     }
@@ -47,48 +49,50 @@ public class ExecuteMachine {
         char aux;
 
         aux = ch;
-        fita[Cab] = fita[Cab-1];
-        fita[Cab-1] = aux;
+        fita[cabecote] = fita[cabecote -1];
+        fita[cabecote -1] = aux;
 
-        aux = fita[Cab+1];
-        fita[Cab+1] = fita[Cab+2];
-        fita[Cab+2] = aux;
+        aux = fita[cabecote +1];
+        fita[cabecote +1] = fita[cabecote +2];
+        fita[cabecote +2] = aux;
 
-        Cab++;
+        cabecote++;
 
-        if(FLAG)imprimeFita(fita,id);
+        if(FLAG)imprimeFita(fita,id,"........");
 
         return fita;
     }
     private Character[] atualizaFitaEsquerda(char ch,int id){
         char aux = ch;
-        fita[Cab] =   fita[Cab+1];
-        fita[Cab+1] = aux;
+        fita[cabecote] =   fita[cabecote +1];
+        fita[cabecote +1] = aux;
 
 
-        aux =  fita[Cab-2];
-        fita[Cab-2] =   fita[Cab-1];
-        fita[Cab-1] = aux;
-        Cab--;
+        aux =  fita[cabecote -2];
+        fita[cabecote -2] =   fita[cabecote -1];
+        fita[cabecote -1] = aux;
+        cabecote--;
 
-        if(FLAG) imprimeFita(fita,id);
+        if(FLAG) imprimeFita(fita,id,"........");
         return fita;
     }
     private Character[] atualizaFitaParada(char ch,int id){
 
-        fita[Cab] = ch;
+        fita[cabecote] = ch;
 
-        if(FLAG)imprimeFita(fita,id);
+        if(FLAG)imprimeFita(fita,id,"........");
         return fita;
     }
-    private void imprimeFita(Character[] fita,int id) {
+    private void imprimeFita(Character[] fita,int id,String nDert) {
 
-        String print = String.format("%04d", id) +": ";
+        String print = nDert + String.format("%04d", id) +": ";
         for (int i = 0; i < fita.length; i++) {
             if (fita[i] != null)
                 print += fita[i];
             }
-            System.out.println(print);
+            if (FLAGprint)
+                System.out.println(print);
+
     }
 
     public void execute(ArrayList<State> machine, Entrada entrada, String head) {
@@ -100,13 +104,17 @@ public class ExecuteMachine {
             for (State e: machine) {
 
                 if(e.isAceita() && eAtual == e.getId()){
+                    if(!FLAGprint){
+                        FLAGprint = true;
+                        imprimeFita(fita,0,"........");
+                    }
                     if(FLAG) System.out.println("........ aceita ");
                     i = entrada.getLimConfig();
                 }
 
                 if (eAtual == e.getId()){
                     achou = true;
-                    if(e.getNaFita() == fita[Cab]){
+                    if(e.getNaFita() == fita[cabecote]){
                         eAtual = e.getFrom();
                         if (e.getDirecao() == 'e'){
                             atualizaFitaEsquerda(e.getEscreve(),e.getId());
@@ -125,6 +133,10 @@ public class ExecuteMachine {
             }
 
             if (!achou){
+                if(!FLAGprint){
+                    FLAGprint = true;
+                    imprimeFita(fita,0,"........");
+                }
                 if(FLAG) System.out.println("........ rejeita ");
                     i = entrada.getLimConfig();
                 break;
