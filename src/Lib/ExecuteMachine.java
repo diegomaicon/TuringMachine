@@ -13,11 +13,12 @@ public class ExecuteMachine {
     private Character[] fita;
     private int fEsqueda = 20;
     private int fDireita = 20;
-    int Cab = fEsqueda;
+    int Cab ;
+    boolean FLAG = true;
 
-    private Character[] iniciaFita(Entrada entrada, String head){
+    private Character[] iniciaFita(Entrada entrada, String head,int id){
 
-
+        Cab = fEsqueda;
         fita = new Character[fEsqueda+entrada.getWord().length()+fDireita];
 
 
@@ -35,67 +36,100 @@ public class ExecuteMachine {
                 fita[i] = '_';
             }
         }
-        imprimeFita(fita);
+        Cab++;
+        if(FLAG)imprimeFita(fita,id);
 
         return fita;
     }
 
 
-    private Character[] atualizaFitaDireita(String head,char ch){
-        char aux =  fita[Cab+1];
-        fita[Cab+1] = head.charAt(0);
-        fita[Cab] = aux;
-        fita[Cab+2] = ch;
-        fita[Cab+3] = head.charAt(1);
+    private Character[] atualizaFitaDireita(char ch,int id){
+        char aux;
+
+        aux = ch;
+        fita[Cab] = fita[Cab-1];
+        fita[Cab-1] = aux;
+
+        aux = fita[Cab+1];
+        fita[Cab+1] = fita[Cab+2];
+        fita[Cab+2] = aux;
+
         Cab++;
 
-        imprimeFita(fita);
+        if(FLAG)imprimeFita(fita,id);
 
         return fita;
     }
-    private Character[] atualizaFitaEsquerda(String head,char ch){
-        char aux =  fita[Cab-1];
-        fita[Cab-1] = head.charAt(0);
-        fita[Cab] = aux;
+    private Character[] atualizaFitaEsquerda(char ch,int id){
+        char aux = ch;
+        fita[Cab] =   fita[Cab+1];
+        fita[Cab+1] = aux;
+
+
+        aux =  fita[Cab-2];
+        fita[Cab-2] =   fita[Cab-1];
+        fita[Cab-1] = aux;
+        Cab--;
+
+        if(FLAG) imprimeFita(fita,id);
+        return fita;
+    }
+    private Character[] atualizaFitaParada(char ch,int id){
 
         fita[Cab] = ch;
 
-        aux =  fita[Cab+1];
-        fita[Cab+1] = head.charAt(1);
-        fita[Cab+2] = aux;
-        Cab--;
-
-        imprimeFita(fita);
-
+        if(FLAG)imprimeFita(fita,id);
         return fita;
     }
-    private void imprimeFita(Character[] fita) {
+    private void imprimeFita(Character[] fita,int id) {
+
+        String print = String.format("%04d", id) +": ";
         for (int i = 0; i < fita.length; i++) {
-            if (fita[i] != null) {
-                System.out.print(fita[i]);
-            }else
-                System.out.print("_");
-        }
+            if (fita[i] != null)
+                print += fita[i];
+            }
+            System.out.println(print);
     }
 
-    public void execute(ArrayList<State> Machine, Entrada entrada, String head) {
-        iniciaFita(entrada, head);
-        System.out.print("\n");
-        atualizaFitaDireita(head,'a');
-        System.out.print("\n");
-        atualizaFitaDireita(head,'x');
-        System.out.print("\n");
-        atualizaFitaEsquerda(head,'z');
-        System.out.print("\n");
-        atualizaFitaEsquerda(head,'z');
-        System.out.print("\n");
-        atualizaFitaDireita(head,'a');
-        System.out.print("\n");
-        atualizaFitaEsquerda(head,'z');
-        System.out.print("\n");
-        atualizaFitaEsquerda(head,'z');
-        System.out.print("\n");
+    public void execute(ArrayList<State> machine, Entrada entrada, String head) {
+        int eAtual = 1;
+        iniciaFita(entrada, head,eAtual);
+        boolean achou = false;
 
+        for (int i = 0; i < entrada.getLimConfig(); i++) {
+            for (State e: machine) {
+
+                if(e.isAceita() && eAtual == e.getId()){
+                    if(FLAG) System.out.println("........ aceita ");
+                    i = entrada.getLimConfig();
+                }
+
+                if (eAtual == e.getId()){
+                    achou = true;
+                    if(e.getNaFita() == fita[Cab]){
+                        eAtual = e.getFrom();
+                        if (e.getDirecao() == 'e'){
+                            atualizaFitaEsquerda(e.getEscreve(),e.getId());
+                            break;
+                        }else if (e.getDirecao() == 'd') {
+                            atualizaFitaDireita(e.getEscreve(),e.getId());
+                            break;
+                        }else if (e.getDirecao() == 'i') {
+                            atualizaFitaParada(e.getEscreve(),e.getId());
+                            break;
+                        }
+
+                    }
+
+                }else achou = false;
+            }
+
+            if (!achou){
+                if(FLAG) System.out.println("........ rejeita ");
+                    i = entrada.getLimConfig();
+                break;
+            }
+        }
 
     }
 }
