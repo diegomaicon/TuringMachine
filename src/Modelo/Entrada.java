@@ -72,7 +72,6 @@ public class Entrada {
         return result;
     }
 
-
     public static Entrada entrada (){
         Scanner ler = new Scanner(System.in);
         Entrada entrada = new Entrada();
