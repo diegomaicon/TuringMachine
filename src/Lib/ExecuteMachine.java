@@ -29,39 +29,73 @@ public class ExecuteMachine {
         for (int i = 1; i < entrada.getWord().length(); i++) {
             fita[fEsqueda+2+i] = entrada.getWord().charAt(i);
         }
-        for (int i = 0; i < fita.length; i++) {
-            if (fita[i] != null) {
-                System.out.print(fita[i]);
-            }else
-                System.out.print("_");
-        }
-
-    return fita;
-    }
-
-
-    private Character[] atualizaFita(String head){
-        char aux =  fita[Cab+1];
-        fita[Cab+1] = head.charAt(0);
-        fita[Cab] = aux;
-        fita[Cab+2] = 'b';
-        fita[Cab+3] = head.charAt(1);
-        Cab++;
 
         for (int i = 0; i < fita.length; i++) {
-            if (fita[i] != null) {
-                System.out.print(fita[i]);
-            }else
-                System.out.print("_");
+            if(fita[i] == null ){
+                fita[i] = '_';
+            }
         }
+        imprimeFita(fita);
 
         return fita;
     }
+
+
+    private Character[] atualizaFitaDireita(String head,char ch){
+        char aux =  fita[Cab+1];
+        fita[Cab+1] = head.charAt(0);
+        fita[Cab] = aux;
+        fita[Cab+2] = ch;
+        fita[Cab+3] = head.charAt(1);
+        Cab++;
+
+        imprimeFita(fita);
+
+        return fita;
+    }
+    private Character[] atualizaFitaEsquerda(String head,char ch){
+        char aux =  fita[Cab-1];
+        fita[Cab-1] = head.charAt(0);
+        fita[Cab] = aux;
+
+        fita[Cab] = ch;
+
+        aux =  fita[Cab+1];
+        fita[Cab+1] = head.charAt(1);
+        fita[Cab+2] = aux;
+        Cab--;
+
+        imprimeFita(fita);
+
+        return fita;
+    }
+    private void imprimeFita(Character[] fita) {
+        for (int i = 0; i < fita.length; i++) {
+            if (fita[i] != null) {
+                System.out.print(fita[i]);
+            }else
+                System.out.print("_");
+        }
+    }
+
     public void execute(ArrayList<State> Machine, Entrada entrada, String head) {
         iniciaFita(entrada, head);
-        System.out.println("\n");
-        atualizaFita(head);
-        System.out.println("\n");
-        atualizaFita(head);
+        System.out.print("\n");
+        atualizaFitaDireita(head,'a');
+        System.out.print("\n");
+        atualizaFitaDireita(head,'x');
+        System.out.print("\n");
+        atualizaFitaEsquerda(head,'z');
+        System.out.print("\n");
+        atualizaFitaEsquerda(head,'z');
+        System.out.print("\n");
+        atualizaFitaDireita(head,'a');
+        System.out.print("\n");
+        atualizaFitaEsquerda(head,'z');
+        System.out.print("\n");
+        atualizaFitaEsquerda(head,'z');
+        System.out.print("\n");
+
+
     }
 }

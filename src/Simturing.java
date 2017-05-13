@@ -19,6 +19,6 @@ public class Simturing {
         machine = ArqManipulation.carregaMaquina("palindromo.mt");
         ExecuteMachine execute = new ExecuteMachine();
         execute.execute(machine, new Entrada(500,50,"aabbc"),"()");
-        System.out.println("Fim");
+        System.out.println("\nFim");
     }
 }
