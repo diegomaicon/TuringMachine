@@ -18,71 +18,110 @@ public class ExecuteMachine {
 
     public static boolean FLAGprint;
 
-    private Character[] iniciaFita(Entrada entrada, String head,int id){
+    /**
+     * Inicia Fita com palavra informada na entrada
+     *
+     * @param f
+     * @param entrada
+     * @param head
+     * @param id
+     * @return
+     */
+    private Character[] iniciaFita(Character[] f,Entrada entrada, String head,int id){
 
         cabecote = fEsqueda;
-        fita = new Character[fEsqueda+entrada.getWord().length()+fDireita];
+        //Seta tamanho da fita 20+palavra+20 espaços em branco.
+        f = new Character[fEsqueda+entrada.getWord().length()+fDireita];
 
 
-        fita[fEsqueda] = head.charAt(0);
-        fita[fEsqueda+1] = entrada.getWord().charAt(0);
-        fita[fEsqueda+2] = head.charAt(1);
+        f[fEsqueda] = head.charAt(0);
+        f[fEsqueda+1] = entrada.getWord().charAt(0);
+        f[fEsqueda+2] = head.charAt(1);
 
 
         for (int i = 1; i < entrada.getWord().length(); i++) {
-            fita[fEsqueda+2+i] = entrada.getWord().charAt(i);
+            f[fEsqueda+2+i] = entrada.getWord().charAt(i);
         }
-
-        for (int i = 0; i < fita.length; i++) {
-            if(fita[i] == null ){
-                fita[i] = '_';
+        //Onde não tem caracter é preenchido com '_' ou branco
+        for (int i = 0; i < f.length; i++) {
+            if(f[i] == null ){
+                f[i] = '_';
             }
         }
         cabecote++;
-        if(FLAG)imprimeFita(fita,id,"........");
-
-        return fita;
+        if(FLAG)imprimeFita(f,id,"........");
+        return f;
     }
 
-
-    private Character[] atualizaFitaDireita(char ch,int id){
+    /**
+     *  Anda com cabeçote para Direita
+     * @param f
+     * @param ch
+     * @param id
+     * @return
+     */
+    private Character[] atualizaFitaDireita(Character[] f,char ch,int id){
         char aux;
 
         aux = ch;
-        fita[cabecote] = fita[cabecote -1];
-        fita[cabecote -1] = aux;
+        f[cabecote] = f[cabecote -1];
+        f[cabecote -1] = aux;
 
-        aux = fita[cabecote +1];
-        fita[cabecote +1] = fita[cabecote +2];
-        fita[cabecote +2] = aux;
+        aux = f[cabecote +1];
+        f[cabecote +1] = f[cabecote +2];
+        f[cabecote +2] = aux;
 
         cabecote++;
 
-        if(FLAG)imprimeFita(fita,id,"........");
+        if(FLAG)imprimeFita(f,id,"........");
 
-        return fita;
+        return f;
     }
-    private Character[] atualizaFitaEsquerda(char ch,int id){
+
+    /**
+     *  Anda com cabeçote para esquerda.
+     * @param f
+     * @param ch
+     * @param id
+     * @return
+     */
+    private Character[] atualizaFitaEsquerda(Character[] f,char ch,int id){
         char aux = ch;
-        fita[cabecote] =   fita[cabecote +1];
-        fita[cabecote +1] = aux;
+        f[cabecote] =   f[cabecote +1];
+        f[cabecote +1] = aux;
 
 
-        aux =  fita[cabecote -2];
-        fita[cabecote -2] =   fita[cabecote -1];
-        fita[cabecote -1] = aux;
+        aux =  f[cabecote -2];
+        f[cabecote -2] =   f[cabecote -1];
+        f[cabecote -1] = aux;
         cabecote--;
 
-        if(FLAG) imprimeFita(fita,id,"........");
-        return fita;
+        if(FLAG) imprimeFita(f,id,"........");
+        return f;
     }
-    private Character[] atualizaFitaParada(char ch,int id){
 
-        fita[cabecote] = ch;
+    /**
+     *  Permacece com cabeçote perado.
+     * @param f
+     * @param ch
+     * @param id
+     * @return
+     */
+    private Character[] atualizaFitaParada(Character[] f,char ch,int id){
 
-        if(FLAG)imprimeFita(fita,id,"........");
-        return fita;
+        f[cabecote] = ch;
+
+        if(FLAG)imprimeFita(f,id,"........");
+        return f;
     }
+
+    /**
+     *  Imprime conteudo da fita
+     *
+     * @param fita
+     * @param id
+     * @param nDert
+     */
     private void imprimeFita(Character[] fita,int id,String nDert) {
 
         String print = nDert + String.format("%04d", id) +": ";
@@ -97,7 +136,7 @@ public class ExecuteMachine {
 
     public void execute(ArrayList<State> machine, Entrada entrada, String head) {
         int eAtual = 1;
-        iniciaFita(entrada, head,eAtual);
+        fita = iniciaFita(fita,entrada, head,eAtual);
         boolean achou = false;
 
         for (int i = 0; i < entrada.getLimConfig(); i++) {
@@ -117,13 +156,13 @@ public class ExecuteMachine {
                     if(e.getNaFita() == fita[cabecote]){
                         eAtual = e.getFrom();
                         if (e.getDirecao() == 'e'){
-                            atualizaFitaEsquerda(e.getEscreve(),e.getId());
+                            fita = atualizaFitaEsquerda(fita,e.getEscreve(),e.getId());
                             break;
                         }else if (e.getDirecao() == 'd') {
-                            atualizaFitaDireita(e.getEscreve(),e.getId());
+                            fita = atualizaFitaDireita(fita,e.getEscreve(),e.getId());
                             break;
                         }else if (e.getDirecao() == 'i') {
-                            atualizaFitaParada(e.getEscreve(),e.getId());
+                            fita = atualizaFitaParada(fita,e.getEscreve(),e.getId());
                             break;
                         }
 
@@ -144,4 +183,10 @@ public class ExecuteMachine {
         }
 
     }
+
+    private void noDEterministico(){
+
+
+    }
+
 }
