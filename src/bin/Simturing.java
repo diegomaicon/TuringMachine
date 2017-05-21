@@ -1,3 +1,5 @@
+package bin;
+
 import Lib.ArqManipulation;
 import Lib.ExecuteMachine;
 import Modelo.Entrada;
@@ -10,21 +12,13 @@ import java.util.ArrayList;
  * Created by Diego Maicon Silva - 11913 on 12/05/2017.
  */
 public class Simturing {
-    private static Entrada entrada;
+    public static Entrada entrada = null;
     private static ArrayList<State> machine;
-
-    public Entrada getEntrada() {
-        return entrada;
-    }
-
-    public void setEntrada(Entrada entrada) {
-        this.entrada = entrada;
-    }
 
     public Simturing() {
     }
 
-    public static void main(String[] args) throws IOException {
+    private static void Start(String[] args){
         String haed = "()";
         //Recebe Argumentos impressão.
         if(args[0].equals("-r")){
@@ -34,21 +28,33 @@ public class Simturing {
         }
         //Recebe argumantos do cabeçote.
 
-        //entrada = Entrada.entrada();
+        //bin.Simturing.entrada = Entrada.entrada();
+
         if (args.length > 3) {
             if (args[1].equals("-head")) {
                 haed = args[2];
-                machine = ArqManipulation.carregaMaquina(args[3]);
+                try {
+                    machine = ArqManipulation.carregaMaquina(args[3]);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } else{
-            machine = ArqManipulation.carregaMaquina(args[1]);
+            try {
+                machine = ArqManipulation.carregaMaquina(args[1]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-
         ExecuteMachine exM = new ExecuteMachine();
-        exM.execute(machine, new Entrada(500,50,"cccaccc"),haed);
+        Simturing.entrada = new Entrada(100,20,"bbbabb"); //comentar
+        exM.execute(machine,Simturing.entrada ,haed);
 
+    }
 
-        System.out.println("\n Fim");
+    public static void main(String[] args) throws IOException {
+        Simturing.Start(args);
+
     }
 }

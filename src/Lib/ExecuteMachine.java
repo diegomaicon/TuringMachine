@@ -2,6 +2,7 @@ package Lib;
 
 import Modelo.Entrada;
 import Modelo.State;
+import bin.Simturing;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +12,7 @@ import java.util.Collections;
  * Created by Diego on 12/05/2017.
  */
 public class ExecuteMachine {
+
     private Character[] fita;
     private int fEsqueda = 20;
     private int fDireita = 20;
@@ -154,7 +156,7 @@ public class ExecuteMachine {
                     }
                     if (FLAG) {
                         System.out.println("........ aceita ");
-                        return;
+                        System.exit(0);
                     }
                 }
 
@@ -191,9 +193,10 @@ public class ExecuteMachine {
             } else if (lstate.size() >= 2){
                 if(FLAG) imprimeFita(fita,lstate.get(0).getId(),"...N....");
 
-                //Collections.reverse(lstate);
+                Collections.reverse(lstate);
                 Character[] f;
                 int cab = cabecote;
+                //Percorre lista de estados não deterministico
                 for (State e:lstate) {
                     FLAG = false;
                     f = fita.clone();
@@ -204,10 +207,12 @@ public class ExecuteMachine {
                     } else if (e.getDirecao() == 'i') {
                         f = atualizaFitaParada(f, e.getEscreve(), e.getId());
                     }
-                    cabecote = cab;
-                    Runnable noD = new NoDeterministico(f,e.getFrom(),cabecote+1,fEsqueda,fDireita,true,machine);
+                    //Cria nova Thread
+                    Runnable noD = new NoDeterministico(f,e.getFrom(),cabecote,fEsqueda,fDireita,true,machine);
                     Thread t  = new Thread(noD,e.getId()+"");
                     t.start();
+                    cabecote = cab;
+                    Simturing.entrada.setLimTreads(Simturing.entrada.getLimTreads()-1);
                     try {
                         t.join();
                     } catch (InterruptedException e1) {
@@ -215,13 +220,26 @@ public class ExecuteMachine {
                     }
 
                 }
-                return;
+
+            } else {
+                if (!FLAGprint) {
+                    FLAGprint = true;
+                    imprimeFita(fita, 0, "........");
+                }
+                if (FLAG) {
+                    System.out.println("........ rejeita ");
+                    return;
+                }
             }
+
             lstate.clear();
-            entrada.setLimConfig(entrada.getLimConfig()-1);
 
-        } while (entrada.getLimConfig() != 0);
+            Simturing.entrada.setLimConfig(Simturing.entrada.getLimConfig()-1);
 
+           //controla parada
+        } while (Simturing.entrada.getLimConfig() > 0  || Simturing.entrada.getLimConfig() > 0);
 
+        System.out.println("........Computação ou Limite de Threads esgotado :( ");
+        System.exit(0);
     }
 }
