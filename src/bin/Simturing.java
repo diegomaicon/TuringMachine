@@ -22,9 +22,9 @@ public class Simturing {
         String haed = "()";
         //Recebe Argumentos impressão.
         if(args[0].equals("-r")){
-            ExecuteMachine.FLAGprint = false;
+            ExecuteMachine.FLAGprint = false; //Imprime somete resultado
         } else if(args[0].equals("-v")){
-            ExecuteMachine.FLAGprint = true;
+            ExecuteMachine.FLAGprint = true; //Imprime passo a passo
         }
         //Recebe argumantos do cabeçote.
 
@@ -48,7 +48,7 @@ public class Simturing {
         }
 
         ExecuteMachine exM = new ExecuteMachine();
-        Simturing.entrada = new Entrada(100,20,"bbbabb"); //comentar
+        Simturing.entrada = new Entrada(100,20,"cccaccc"); //comentar
         exM.execute(machine,Simturing.entrada ,haed);
 
     }

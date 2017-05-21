@@ -9,17 +9,17 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Created by Diego on 12/05/2017.
+ * Created by Diego Maicon Silva - 11913 on 21/05/2017.
  */
 public class ExecuteMachine {
 
-    private Character[] fita;
+    private Character[] fita;           //Fita da máquina de Turing
     private int fEsqueda = 20;
     private int fDireita = 20;
-    private int cabecote;
+    private int cabecote;               //indica posição cabeçote
     private boolean FLAG = true;
 
-    public static boolean FLAGprint;
+    public static boolean FLAGprint;   // dependendo do parametro, imprime passo a passo, ou não.
 
     /**
      * Inicia Fita com palavra informada na entrada
@@ -137,6 +137,13 @@ public class ExecuteMachine {
 
     }
 
+    /**
+     *  Executa máquina, achar estado de aceitação, ou terminar a computação ou limite de threads
+     *
+     * @param machine
+     * @param entrada
+     * @param head
+     */
     public void execute(ArrayList<State> machine, Entrada entrada, String head) {
         int eAtual = 1;
         ArrayList<State> lstate = new ArrayList<State>();
@@ -148,6 +155,7 @@ public class ExecuteMachine {
         do {
             achou = false;
             contT = 0;
+            //Perforre lista de estados, a procura da direção ir
             for (State e : machine) {
                 if (e.isAceita() && eAtual == e.getId()) {
                     if (!FLAGprint) {
@@ -169,8 +177,12 @@ public class ExecuteMachine {
                 }
             }
             if (lstate.size() == 1) {
-                eAtual = lstate.get(0).getFrom();
+                /* ’*’ pode ser usado como coringa em <novo estado> e <novo símbolo> para significar ausência de mudança.*/
+                if (lstate.get(0).getFrom() != -42)
+                 eAtual = lstate.get(0).getFrom();
+                else eAtual = lstate.get(0).getId();
             }
+
             if (!achou) {
                 if (!FLAGprint) {
                     FLAGprint = true;
@@ -180,9 +192,13 @@ public class ExecuteMachine {
                     System.out.println("........ rejeita ");
                     return;
                 }
-
+                // if contT ==1, não tem no-Determinismo
             } else if (contT == 1 && achou) {
-                eAtual = lstate.get(0).getFrom();
+                /* ’*’ pode ser usado como coringa em <novo estado> e <novo símbolo> para significar ausência de mudança.*/
+                if (lstate.get(0).getFrom() != -42)
+                    eAtual = lstate.get(0).getFrom();
+                else eAtual = lstate.get(0).getId();
+                /* Verifica fireção onde cabeçote vai */
                 if (lstate.get(0).getDirecao() == 'e') {
                     fita = atualizaFitaEsquerda(fita, lstate.get(0).getEscreve(), lstate.get(0).getId());
                 } else if (lstate.get(0).getDirecao() == 'd') {
@@ -190,16 +206,16 @@ public class ExecuteMachine {
                 } else if (lstate.get(0).getDirecao() == 'i') {
                     fita = atualizaFitaParada(fita, lstate.get(0).getEscreve(), lstate.get(0).getId());
                 }
+                //Se a lista de é maior que 2, ouve não determinismo e tem que disparar as Thread's
             } else if (lstate.size() >= 2){
                 if(FLAG) imprimeFita(fita,lstate.get(0).getId(),"...N....");
-
-                Collections.reverse(lstate);
                 Character[] f;
                 int cab = cabecote;
                 //Percorre lista de estados não deterministico
                 for (State e:lstate) {
                     FLAG = false;
                     f = fita.clone();
+                     /* Verifica fireção onde cabeçote vai */
                     if (e.getDirecao() == 'e') {
                         f = atualizaFitaEsquerda(f,e.getEscreve(), e.getId());
                     } else if (e.getDirecao() == 'd') {
@@ -207,20 +223,21 @@ public class ExecuteMachine {
                     } else if (e.getDirecao() == 'i') {
                         f = atualizaFitaParada(f, e.getEscreve(), e.getId());
                     }
-                    //Cria nova Thread
+                    //Cria novas Thread's
                     Runnable noD = new NoDeterministico(f,e.getFrom(),cabecote,fEsqueda,fDireita,true,machine);
                     Thread t  = new Thread(noD,e.getId()+"");
                     t.start();
                     cabecote = cab;
+                    //Diminui limite de Thread's
                     Simturing.entrada.setLimTreads(Simturing.entrada.getLimTreads()-1);
                     try {
+                        //Aguarda fim da Thread
                         t.join();
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
-
                 }
-
+                return;
             } else {
                 if (!FLAGprint) {
                     FLAGprint = true;
@@ -232,6 +249,7 @@ public class ExecuteMachine {
                 }
             }
 
+            //limpa lista de estados
             lstate.clear();
 
             Simturing.entrada.setLimConfig(Simturing.entrada.getLimConfig()-1);

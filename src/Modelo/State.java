@@ -1,15 +1,18 @@
 package Modelo;
 
 /**
- * Created by Diego on 12/05/2017.
+ * Created by Diego Maicon Silva on 12/05/2017.
+ *
+ * Estrutura de dados, para representar cada estado da máquina;
+ *
  */
 public class State {
-    private int id;
-    private char naFita;
-    private char escreve;
-    private char direcao;
-    private int from;
-    private boolean aceita;
+    private int id;              // Id do Estado
+    private char naFita;         // Caracter na fita
+    private char escreve;        // Caracter á escrever na fita
+    private char direcao;        // Direção do cabeçote
+    private int from;            // Estado de destino
+    private boolean aceita;      // Se é Final ou não
     private boolean breakpoint;
 
 

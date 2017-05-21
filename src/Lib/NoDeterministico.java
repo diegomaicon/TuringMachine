@@ -7,7 +7,7 @@ import bin.Simturing;
 import java.util.ArrayList;
 
 /**
- * Created by Diego Maicon Silva 11913 on 21/05/2017.
+ * Created by Diego Maicon Silva - 11913 on 21/05/2017.
  */
 public class NoDeterministico extends ExecuteMachine implements Runnable {
     private Character[] f;
@@ -17,8 +17,18 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
     private int fDireita = 20;
     private boolean FLAG = true;
     private ArrayList<State> machine;
+    private boolean FLAGprintND = FLAGprint;
 
-
+    /**
+     * Metodo construtor, recebe parametros para continuar a Thread a partir de onde a ultima parou
+     * @param f
+     * @param eAtual
+     * @param cabecote
+     * @param fEsqueda
+     * @param fDireita
+     * @param FLAG
+     * @param machine
+     */
     public NoDeterministico(Character[] f, int eAtual, int cabecote, int fEsqueda, int fDireita, boolean FLAG, ArrayList<State> machine) {
         this.f = f;
         this.eAtual = eAtual;
@@ -45,21 +55,24 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
         this.f = f;
     }
 
+    /**
+     * Roda a cada Thread a procura de estado de aceitação, consegue gerar novas Thread's
+     * @autor Diego
+     */
     @Override
     public void run() {
-       if(FLAGprint) System.out.println("Thread: " + this.eAtual);
-       if(FLAGprint) imprimeFita(f, eAtual, "........");
+        if (FLAGprintND) System.out.println("Thread: " + this.eAtual);
+        if (FLAGprintND) imprimeFita(f, eAtual, "........");
 
         do {
             boolean achou = false;
             ArrayList<State> lstate = new ArrayList<State>();
             int contT = 0;
-
+            //Perforre lista de estados, a procura da direção ir
             for (State e : machine) {
-
-                 if (e.isAceita() && eAtual == e.getId()) {
-                    if (!FLAGprint) {
-                        FLAGprint = true;
+                if (e.isAceita() && eAtual == e.getId()) {
+                    if (!FLAGprintND) {
+                        FLAGprintND = true;
                         imprimeFita(f, 0, "........");
                     }
                     if (FLAG) {
@@ -77,21 +90,28 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
                 }
             }
             if (lstate.size() == 1) {
-                eAtual = lstate.get(0).getFrom();
+                 /* ’*’ pode ser usado como coringa em <novo estado> e <novo símbolo> para significar ausência de mudança.*/
+                if (lstate.get(0).getFrom() != -42)
+                    eAtual = lstate.get(0).getFrom();
+                else eAtual = lstate.get(0).getId();
             }
 
             if (!achou) {
-                if (!FLAGprint) {
-                    FLAGprint = true;
+                if (!FLAGprintND) {
+                    FLAGprintND = true;
                     imprimeFita(f, 0, "........");
                 }
                 if (FLAG) {
                     System.out.println("........ rejeita ");
                     return;
                 }
-
+                // if contT ==1, não tem no-Determinismo
             } else if (contT == 1 && achou) {
-                eAtual = lstate.get(0).getFrom();
+                 /* ’*’ pode ser usado como coringa em <novo estado> e <novo símbolo> para significar ausência de mudança.*/
+                if (lstate.get(0).getFrom() != -42)
+                    eAtual = lstate.get(0).getFrom();
+                else eAtual = lstate.get(0).getId();
+                /* Verifica fireção onde cabeçote vai */
                 if (lstate.get(0).getDirecao() == 'e') {
                     f = atualizaFitaEsquerda(f, lstate.get(0).getEscreve(), lstate.get(0).getId());
                 } else if (lstate.get(0).getDirecao() == 'd') {
@@ -99,6 +119,8 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
                 } else if (lstate.get(0).getDirecao() == 'i') {
                     f = atualizaFitaParada(f, lstate.get(0).getEscreve(), lstate.get(0).getId());
                 }
+
+                //Se a lista de é maior que 2, ouve não determinismo e tem que disparar as Thread's
             } else if (lstate.size() >= 2) {
                 if (FLAG) imprimeFita(f, lstate.get(0).getId(), "...N....");
                 Character[] auxf;
@@ -106,6 +128,7 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
                 for (State e : lstate) {
                     FLAG = false;
                     auxf = f.clone();
+                     /* Verifica fireção onde cabeçote vai */
                     if (e.getDirecao() == 'e') {
                         auxf = atualizaFitaEsquerda(auxf, e.getEscreve(), e.getId());
                     } else if (e.getDirecao() == 'd') {
@@ -113,36 +136,37 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
                     } else if (e.getDirecao() == 'i') {
                         auxf = atualizaFitaParada(auxf, e.getEscreve(), e.getId());
                     }
-
-                    Runnable noD = new NoDeterministico(auxf, e.getFrom(), cabecote , fEsqueda, fDireita, true, machine);
+                    //Cria novas Thread's
+                    Runnable noD = new NoDeterministico(auxf, e.getFrom(), cabecote, fEsqueda, fDireita, true, machine);
                     Thread t = new Thread(noD, e.getId() + "");
-                    t.start(); cabecote = cab;
-
-                    Simturing.entrada.setLimTreads(Simturing.entrada.getLimTreads() - 1);
+                    t.start();
+                    cabecote = cab;
+                    Simturing.entrada.setLimTreads(Simturing.entrada.getLimTreads() - 1); //Diminui limite de Thread's
                     try {
+                        //Aguarda fim da Thread
                         t.join();
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
 
                 }
-
+                return;
             } else {
-                if (FLAGprint) {
-                    FLAGprint = true;
+                if (!FLAGprintND) {
+                    FLAGprintND = true;
                     imprimeFita(f, 0, "........");
                 }
                 if (FLAG) {
-                    if (FLAGprint) System.out.println("........ rejeita ");
+                    System.out.println("........ rejeita ");
                     return;
                 }
             }
-
+            //limpa lista de estados
             lstate.clear();
 
             Simturing.entrada.setLimConfig(Simturing.entrada.getLimConfig() - 1);
-           if(Simturing.entrada.getLimTreads() == 0) Simturing.entrada.setLimConfig(0);
-        }while(Simturing.entrada.getLimConfig() > 0 );
+            if (Simturing.entrada.getLimTreads() == 0) Simturing.entrada.setLimConfig(0);
+        } while (Simturing.entrada.getLimConfig() > 0);
 
         System.out.println("........Computação ou Limite de Threads esgotado :( ");
         System.exit(0);
@@ -227,7 +251,7 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
             if (fita[i] != null)
                 print += fita[i];
         }
-        if (FLAGprint)
+        if (FLAGprintND)
             System.out.println(print);
 
     }
