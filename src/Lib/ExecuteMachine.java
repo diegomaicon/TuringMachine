@@ -4,6 +4,8 @@ import Modelo.Entrada;
 import Modelo.State;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Created by Diego on 12/05/2017.
@@ -14,7 +16,6 @@ public class ExecuteMachine {
     private int fDireita = 20;
     private int cabecote;
     private boolean FLAG = true;
-    private String printFim ="";
 
     public static boolean FLAGprint;
 
@@ -136,57 +137,91 @@ public class ExecuteMachine {
 
     public void execute(ArrayList<State> machine, Entrada entrada, String head) {
         int eAtual = 1;
-        fita = iniciaFita(fita,entrada, head,eAtual);
-        boolean achou = false;
+        ArrayList<State> lstate = new ArrayList<State>();
+        fita = iniciaFita(fita, entrada, head, eAtual);
+        boolean achou;
+        int contT;
 
-        for (int i = 0; i < entrada.getLimConfig(); i++) {
-            for (State e: machine) {
 
-                if(e.isAceita() && eAtual == e.getId()){
-                    if(!FLAGprint){
+        do {
+            achou = false;
+            contT = 0;
+            for (State e : machine) {
+                if (e.isAceita() && eAtual == e.getId()) {
+                    if (!FLAGprint) {
                         FLAGprint = true;
-                        imprimeFita(fita,0,"........");
+                        imprimeFita(fita, 0, "........");
                     }
-                    if(FLAG) System.out.println("........ aceita ");
-                    i = entrada.getLimConfig();
+                    if (FLAG) {
+                        System.out.println("........ aceita ");
+                        return;
+                    }
                 }
 
-                if (eAtual == e.getId()){
+                if (eAtual == e.getId()) {
                     achou = true;
-                    if(e.getNaFita() == fita[cabecote]){
-                        eAtual = e.getFrom();
-                        if (e.getDirecao() == 'e'){
-                            fita = atualizaFitaEsquerda(fita,e.getEscreve(),e.getId());
-                            break;
-                        }else if (e.getDirecao() == 'd') {
-                            fita = atualizaFitaDireita(fita,e.getEscreve(),e.getId());
-                            break;
-                        }else if (e.getDirecao() == 'i') {
-                            fita = atualizaFitaParada(fita,e.getEscreve(),e.getId());
-                            break;
-                        }
+                    if (e.getNaFita() == fita[cabecote]) {
+                        contT++;
+                        lstate.add(e);
+                    }
+                }
+            }
+            if (lstate.size() == 1) {
+                eAtual = lstate.get(0).getFrom();
+            }
+            if (!achou) {
+                if (!FLAGprint) {
+                    FLAGprint = true;
+                    imprimeFita(fita, 0, "........");
+                }
+                if (FLAG) {
+                    System.out.println("........ rejeita ");
+                    return;
+                }
 
+            } else if (contT == 1 && achou) {
+                eAtual = lstate.get(0).getFrom();
+                if (lstate.get(0).getDirecao() == 'e') {
+                    fita = atualizaFitaEsquerda(fita, lstate.get(0).getEscreve(), lstate.get(0).getId());
+                } else if (lstate.get(0).getDirecao() == 'd') {
+                    fita = atualizaFitaDireita(fita,lstate.get(0).getEscreve(), lstate.get(0).getId());
+                } else if (lstate.get(0).getDirecao() == 'i') {
+                    fita = atualizaFitaParada(fita, lstate.get(0).getEscreve(), lstate.get(0).getId());
+                }
+            } else if (lstate.size() >= 2){
+                if(FLAG) imprimeFita(fita,lstate.get(0).getId(),"...N....");
+
+                //Collections.reverse(lstate);
+                Character[] f;
+                int cab = cabecote;
+                for (State e:lstate) {
+                    FLAG = false;
+                    f = fita.clone();
+                    if (e.getDirecao() == 'e') {
+                        f = atualizaFitaEsquerda(f,e.getEscreve(), e.getId());
+                    } else if (e.getDirecao() == 'd') {
+                        f = atualizaFitaDireita(f,e.getEscreve(), e.getId());
+                    } else if (e.getDirecao() == 'i') {
+                        f = atualizaFitaParada(f, e.getEscreve(), e.getId());
+                    }
+                    cabecote = cab;
+                    Runnable noD = new NoDeterministico(f,e.getFrom(),cabecote+1,fEsqueda,fDireita,true,machine);
+                    Thread t  = new Thread(noD,e.getId()+"");
+                    t.start();
+                    try {
+                        t.join();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
                     }
 
-                }else achou = false;
-            }
-
-            if (!achou){
-                if(!FLAGprint){
-                    FLAGprint = true;
-                    imprimeFita(fita,0,"........");
                 }
-                if(FLAG) System.out.println("........ rejeita ");
-                    i = entrada.getLimConfig();
-                break;
+                return;
             }
-        }
+            lstate.clear();
+            entrada.setLimConfig(entrada.getLimConfig()-1);
+
+        } while (entrada.getLimConfig() != 0);
+
 
     }
-
-    private void noDEterministico(){
-
-
-    }
-
 }
