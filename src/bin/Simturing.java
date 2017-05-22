@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class Simturing {
     public static Entrada entrada = null;
     private static ArrayList<State> machine;
-
+    public static int totalThreads;
     public Simturing() {
     }
 
@@ -29,6 +29,7 @@ public class Simturing {
         //Recebe argumantos do cabeçote.
 
         //bin.Simturing.entrada = Entrada.entrada();
+        Simturing.totalThreads = 20;//Simturing.entrada.getLimTreads();
 
         if (args.length > 3) {
             if (args[1].equals("-head")) {

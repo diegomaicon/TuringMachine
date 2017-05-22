@@ -61,7 +61,7 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
      */
     @Override
     public void run() {
-        if (FLAGprintND) System.out.println("Thread: " + this.eAtual);
+        if (FLAGprintND) System.out.println("Thread: " + (Simturing.totalThreads - Simturing.entrada.getLimTreads()));
         if (FLAGprintND) imprimeFita(f, eAtual, "........");
 
         do {
