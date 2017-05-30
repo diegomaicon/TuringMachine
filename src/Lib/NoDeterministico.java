@@ -164,6 +164,12 @@ public class NoDeterministico extends ExecuteMachine implements Runnable {
             //limpa lista de estados
             lstate.clear();
 
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             Simturing.entrada.setLimConfig(Simturing.entrada.getLimConfig() - 1);
             if (Simturing.entrada.getLimTreads() == 0) Simturing.entrada.setLimConfig(0);
         } while (Simturing.entrada.getLimConfig() > 0);

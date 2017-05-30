@@ -252,9 +252,14 @@ public class ExecuteMachine {
             //limpa lista de estados
             lstate.clear();
 
-            Simturing.entrada.setLimConfig(Simturing.entrada.getLimConfig()-1);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-           //controla parada
+            Simturing.entrada.setLimConfig(Simturing.entrada.getLimConfig()-1);
+            //controla parada
         } while (Simturing.entrada.getLimConfig() > 0  || Simturing.entrada.getLimConfig() > 0);
 
         System.out.println("........Computação ou Limite de Threads esgotado :( ");
