@@ -49,7 +49,7 @@ public class Simturing {
         }
 
         ExecuteMachine exM = new ExecuteMachine();
-        Simturing.entrada = new Entrada(100,20,"cccaccc"); //comentar
+        Simturing.entrada = new Entrada(100,20,"<aa>"); //comentar
         exM.execute(machine,Simturing.entrada ,haed);
 
     }
