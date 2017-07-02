@@ -6,7 +6,6 @@ no formado adotado no simulador disponível em http://morphett.info/turing/turin
 
 
 prompt> sim tu ring −r palindromo .MT
- 3
 Simulador de Máquina de Turing com Oráculo ve r 1 . 0
  De senvolvido como t r ab alh o p r á t i c o para a d i s c i p l i n a de Teo ria da Computação
 Fulano de Tal , IFMG, 2017.
@@ -20,7 +19,7 @@ Valo r e s g rande s podem demandar muito tempo .
 
 Forneça a palav ra i n i c i a l : bbbab
 
-17 . . . . . . . . . . 0 0 0 1 : ____________________(b )bbab__________________
+17 . . . . . . . . . . 0 0 0 1 : ____________________(b )bbab__________________ 
 18 . . . . . . . . . . 0 0 0 1 : ____________________b(b )bab__________________
 19 . . . . . . . . . . 0 0 0 1 : ____________________bb(b )ab__________________
 20 . . . . N . . . . . 0 0 0 1 : ____________________bbb( a )b__________________
@@ -34,6 +33,8 @@ Forneça a palav ra i n i c i a l : bbbab
 28 . . . . . . . . . . 0 0 0 3 : ___________________(_)bbbbb__________________
 29 . . . . . . . . . . 0 0 0 6 : ____________________(b )bbbb__________________
 30 . . . . . . . . a c e i t a
+
+
 A letra N saída indica onde ocorreu um não-determinismo, onde o oráculo precisou escolher um
 caminho para a computação continuar. O oráculo será simulado com o uso de threads, e a saída do
 programa mostrará apenas a computação da thread que conseguiu aceitar a entrada. Se nenhuma
